@@ -24,6 +24,7 @@ ml_demo1/
 │   └── train/
 ├── runs/
 ├── reports/
+├── prepare_data.py
 ├── train.py
 ├── evaluate.py
 ├── predict.py
@@ -39,33 +40,121 @@ ml_demo1/
 pip install -r requirements.txt
 ```
 
-2. Train a baseline model:
+2. Prepare raw data into the processed training format:
+
+```bash
+python prepare_data.py --input-csv data/raw/your_raw_data.csv --output-csv data/processed/train.csv --target-col target
+```
+
+For unlabeled inference data, allow the missing target column:
+
+```bash
+python prepare_data.py --input-csv data/raw/your_inference_data.csv --output-csv data/processed/inference_input.csv --target-col target --allow-missing-target
+```
+
+3. Train a baseline model:
 
 ```bash
 python train.py --config configs/train/default.yaml
 ```
 
-3. Evaluate a trained run:
+4. Evaluate a trained run:
 
 ```bash
 python evaluate.py --run-dir runs/run_001
 ```
 
-4. Run inference on a CSV:
+5. Run inference on a CSV:
 
 ```bash
 python predict.py --run-dir runs/run_001 --input-csv data/processed/inference_input.csv
 ```
 
-5. Run a pipeline smoke test:
+6. Run a pipeline smoke test:
 
 ```bash
 python smoke_test.py
 ```
 
+## Classroom Example: Titanic End to End
+
+Use Titanic passenger survival as a simple real-world classification demo.
+
+Learning goal:
+- start with raw CSV files
+- create processed training and inference tables
+- train a reproducible model
+- evaluate holdout performance
+- run inference on unlabeled rows
+- record the outcome in run artifacts and reports
+
+Suggested raw files:
+- `data/raw/titanic_train.csv` with label column `Survived`
+- `data/raw/titanic_inference.csv` without the label column
+
+Small Titanic-like sample files are included under `data/raw/` so the demo can run without downloading a dataset.
+
+Prepare labeled training data:
+
+```bash
+python prepare_data.py --input-csv data/raw/titanic_train.csv --output-csv data/processed/train.csv --target-col target --rename-target-from Survived --drop-columns PassengerId,Name,Ticket,Cabin
+```
+
+Train the baseline pipeline:
+
+```bash
+python train.py --config configs/train/default.yaml
+```
+
+Evaluate the saved run:
+
+```bash
+python evaluate.py --run-dir runs/run_001 --target-col target
+```
+
+Prepare unlabeled inference data:
+
+```bash
+python prepare_data.py --input-csv data/raw/titanic_inference.csv --output-csv data/processed/inference_input.csv --target-col target --drop-columns PassengerId,Name,Ticket,Cabin --allow-missing-target
+```
+
+Run inference:
+
+```bash
+python predict.py --run-dir runs/run_001 --input-csv data/processed/inference_input.csv
+```
+
+Teaching message:
+- `data/raw/` keeps the original source data
+- `prepare_data.py` creates the modeling-ready contract in `data/processed/`
+- `src/features/preprocess.py` defines reusable transforms
+- `train.py` and `predict.py` share the same serialized pipeline
+- `runs/` and `reports/` preserve evidence and conclusions
+
 ## Workflow Map (Command -> Artifacts)
 
-1. `train.py`
+1. `prepare_data.py`
+
+Command:
+
+```bash
+python prepare_data.py --input-csv data/raw/your_raw_data.csv --output-csv data/processed/train.csv --target-col target
+```
+
+Reads:
+- raw CSV passed via `--input-csv`
+
+Writes:
+- `data/processed/train.csv`
+
+Behavior:
+- trims column names
+- optionally renames a raw target column
+- optionally drops selected columns
+- can prepare unlabeled inference data with `--allow-missing-target`
+- removes duplicate rows
+
+2. `train.py`
 
 Command:
 
@@ -88,7 +177,7 @@ Writes:
 - `runs/run_001/holdout.csv`
 - `runs/summary.csv`
 
-2. `evaluate.py`
+3. `evaluate.py`
 
 Command:
 
@@ -103,7 +192,7 @@ Reads:
 Writes:
 - `runs/run_001/evaluation_metrics.json`
 
-3. `predict.py`
+4. `predict.py`
 
 Command:
 
@@ -119,7 +208,7 @@ Writes:
 - `runs/run_001/predictions_inference.csv` (default)
 - or custom file path from `--output-csv`
 
-4. `smoke_test.py`
+5. `smoke_test.py`
 
 Command:
 
@@ -138,6 +227,8 @@ Behavior:
 ![alt text](image-1.png)
 ```text
 notebooks/*  -> exploration only
+data/raw/*   -> original source data
+prepare_data.py -> raw to processed handoff
 src/*        -> reusable production logic
 reports/*    -> human-readable findings and decisions
 ```
@@ -149,6 +240,7 @@ reports/*    -> human-readable findings and decisions
 ## Reproducibility Checklist
 
 - Keep `data/raw/` unchanged after ingest.
+- Create `data/processed/` from `prepare_data.py`, not by hand edits.
 - Modify behavior through `configs/` before changing code.
 - Use new run names (for example `run_002`) to avoid overwriting prior experiments.
 - Record outcomes in `runs/summary.csv` and `reports/weekly/`.
@@ -157,4 +249,5 @@ reports/*    -> human-readable findings and decisions
 
 - Keep final reusable logic in `src/`, not in notebooks.
 - Treat `data/raw/` as read-only.
+- Save training-ready tables to `data/processed/`.
 - Store per-experiment artifacts under `runs/`.

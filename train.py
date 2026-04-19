@@ -1,9 +1,10 @@
-"""Train a baseline classification pipeline and save run artifacts for reproducibility."""
+"""Train a classification pipeline and save run artifacts for reproducibility."""
 
 from __future__ import annotations
 
 import argparse
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 import joblib
@@ -12,7 +13,7 @@ from sklearn.datasets import load_breast_cancer, load_iris, load_wine, make_clas
 from sklearn.model_selection import train_test_split
 
 from src.eval.metrics import classification_metrics
-from src.models.trainer import train_logistic_regression
+from src.models.trainer import train_model
 from src.utils.common import ensure_dir, load_yaml, set_seed
 
 
@@ -92,16 +93,27 @@ def main() -> None:
         stratify=y,
     )
 
-    model = train_logistic_regression(
+    cv_config = train_cfg.get("cross_validation", {})
+    cv_folds = int(cv_config.get("folds", 5)) if cv_config.get("enabled") else None
+    cv_scoring = cv_config.get("scoring", "roc_auc")
+
+    model, cv_results = train_model(
         X_train=X_train,
         y_train=y_train,
+        model_type=model_cfg.get("model_type", "logistic_regression"),
         model_params=model_cfg.get("params", {}),
         scale_numeric=bool(feature_cfg.get("scale_numeric", True)),
+        pca_enabled=bool(feature_cfg.get("pca_enabled", False)),
+        pca_n_components=feature_cfg.get("pca_n_components"),
+        calibrate=bool(model_cfg.get("calibrate", False)),
+        cv_folds=cv_folds,
+        cv_scoring=cv_scoring,
     )
 
     y_pred = model.predict(X_test)
     y_prob = model.predict_proba(X_test)[:, 1] if hasattr(model, "predict_proba") else None
     metrics = classification_metrics(y_test, y_pred, y_prob)
+    metrics.update(cv_results)
 
     run_dir = ensure_dir(Path(train_cfg["paths"]["runs_dir"]) / train_cfg["run_name"])
 
@@ -121,6 +133,19 @@ def main() -> None:
     }
     (run_dir / params_file).write_text(json.dumps(params, indent=2), encoding="utf-8")
 
+    # Inference bundle descriptor – documents exactly what artifact was saved
+    # and what features it expects, so serving code can validate inputs.
+    bundle_info = {
+        "model_type": model_cfg.get("model_type", "unknown"),
+        "run_name": train_cfg["run_name"],
+        "model_file": model_file,
+        "features": X_train.columns.tolist(),
+        "calibrated": bool(model_cfg.get("calibrate", False)),
+        "trained_at": datetime.now(timezone.utc).isoformat(),
+        "train_config": args.config,
+    }
+    (run_dir / "bundle_info.json").write_text(json.dumps(bundle_info, indent=2), encoding="utf-8")
+
     pred_df = X_test.copy()
     pred_df["y_true"] = y_test.values
     pred_df["y_pred"] = y_pred
@@ -134,13 +159,17 @@ def main() -> None:
     holdout.to_csv(run_dir / "holdout.csv", index=False)
 
     summary_path = Path(train_cfg["paths"]["runs_dir"]) / "summary.csv"
+    cv_mean_key = f"cv_{cv_scoring}_mean" if cv_config.get("enabled") else ""
     summary_row = {
         "run_name": train_cfg["run_name"],
         "model": model_cfg.get("model_type", "unknown"),
+        "calibrated": bool(model_cfg.get("calibrate", False)),
         "accuracy": metrics.get("accuracy", ""),
         "f1": metrics.get("f1", ""),
         "roc_auc": metrics.get("roc_auc", ""),
-        "notes": "baseline run",
+        "cv_score_mean": metrics.get(cv_mean_key, ""),
+        "cv_scoring": cv_config.get("scoring", "") if cv_config.get("enabled") else "",
+        "notes": "",
     }
     # Append instead of overwrite to keep a lightweight experiment ledger.
     if summary_path.exists():

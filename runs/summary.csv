@@ -1,3 +1,29 @@
-##
-run_name,model,accuracy,f1,roc_auc,notes
-run_001,logistic_regression,0.9824561403508771,0.9861111111111112,0.9953703703703703,baseline run
+run_name,model,accuracy,f1,roc_auc,notes,calibrated,cv_score_mean,cv_scoring
+run_demo_all_features,logistic_regression,0.9066666666666666,0.906040268456376,0.9733777777777778,baseline run,,,
+run_demo_selected_features,logistic_regression,0.92,0.9205298013245032,0.9704888888888888,baseline run,,,
+run_demo_pca_features,logistic_regression,0.9166666666666666,0.9169435215946844,0.9680444444444444,baseline run,,,
+run_titanic_all,logistic_regression,0.74,0.6976744186046512,0.7916666666666667,baseline run,,,
+run_titanic_selected,logistic_regression,0.74,0.7111111111111111,0.7996794871794872,baseline run,,,
+run_titanic_pca,logistic_regression,0.62,0.5581395348837209,0.6089743589743589,baseline run,,,
+run_titanic_decision_tree,decision_tree,0.68,0.6923076923076923,0.7844551282051282,,True,0.8075059523809524,roc_auc
+run_titanic_random_forest,random_forest,0.76,0.7142857142857143,0.8173076923076923,,False,0.8221309523809524,roc_auc
+run_titanic_gradient_boosting,gradient_boosting,0.72,0.6956521739130435,0.8076923076923077,,False,0.7731309523809525,roc_auc
+run_titanic_svm,svm,0.78,0.7441860465116279,0.7644230769230769,,True,0.8398630952380952,roc_auc
+run_titanic_decision_tree,decision_tree,0.68,0.6923076923076923,0.7844551282051282,,True,0.8075059523809524,roc_auc
+run_titanic_random_forest,random_forest,0.76,0.7142857142857143,0.8173076923076923,,False,0.8221309523809524,roc_auc
+run_titanic_random_forest,random_forest,0.76,0.7142857142857143,0.8173076923076923,,False,0.8221309523809524,roc_auc
+run_titanic_decision_tree,decision_tree,0.68,0.6923076923076923,0.7844551282051282,,True,0.8075059523809524,roc_auc
+run_titanic_decision_tree,decision_tree,0.68,0.6923076923076923,0.7844551282051282,,True,0.8075059523809524,roc_auc
+run_titanic_gradient_boosting,gradient_boosting,0.72,0.6956521739130435,0.8076923076923077,,False,0.7731309523809525,roc_auc
+run_titanic_svm,svm,0.78,0.7441860465116279,0.7644230769230769,,True,0.8398630952380952,roc_auc
+run_titanic_decision_tree,decision_tree,0.68,0.6923076923076923,0.7844551282051282,,True,0.8075059523809524,roc_auc
+run_titanic_decision_tree,decision_tree,0.68,0.6923076923076923,0.7844551282051282,,True,0.8075059523809524,roc_auc
+run_titanic_decision_tree,decision_tree,0.68,0.6923076923076923,0.7900641025641026,,True,0.8075059523809524,roc_auc
+run_titanic_decision_tree,decision_tree,0.7,0.6808510638297872,0.8092948717948718,,True,0.8043829365079365,roc_auc
+run_titanic_decision_tree,decision_tree,0.7,0.6808510638297872,0.8092948717948718,,True,0.8043829365079365,roc_auc
+run_titanic_gradient_boosting,gradient_boosting,0.72,0.6956521739130435,0.8076923076923077,,False,0.8002136752136754,roc_auc
+run_titanic_gradient_boosting,gradient_boosting,0.72,0.6956521739130435,0.8076923076923077,,False,0.7731309523809525,roc_auc
+run_titanic_gradient_boosting,gradient_boosting,0.72,0.6956521739130435,0.8076923076923077,,False,0.8053571428571429,roc_auc
+run_titanic_gradient_boosting,gradient_boosting,0.68,0.6666666666666666,0.7980769230769231,,False,0.825,roc_auc
+run_titanic_gradient_boosting,gradient_boosting,0.72,0.6956521739130435,0.7900641025641026,,False,0.8017857142857142,roc_auc
+run_titanic_gradient_boosting,gradient_boosting,0.72,0.6956521739130435,0.8076923076923077,,False,0.8071428571428572,roc_auc
