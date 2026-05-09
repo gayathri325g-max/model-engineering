@@ -28,6 +28,7 @@ htmlcov/
 .vscode/
 .DS_Store
 Thumbs.db
+.env
 
 # Local run outputs (keep docs and placeholders)
 runs/**/model.joblib

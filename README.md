@@ -58,6 +58,18 @@ python prepare_data.py --input-csv data/raw/your_inference_data.csv --output-csv
 python train.py --config configs/train/default.yaml
 ```
 
+Deep learning demos (config-first, same artifact contract):
+
+```bash
+# CNN on digits images
+python train_deep.py --config configs/train/digits_cnn.yaml
+
+# RNN / LSTM / GRU on time series sequences
+python train_deep.py --config configs/train/timeseries_rnn.yaml
+python train_deep.py --config configs/train/timeseries_lstm.yaml
+python train_deep.py --config configs/train/timeseries_gru.yaml
+```
+
 4. Evaluate a trained run:
 
 ```bash
@@ -221,6 +233,97 @@ Behavior:
 - If missing, runs `train.py` automatically.
 - Loads `runs/run_001/holdout.csv`, predicts on a small sample, and validates expected output columns.
 - Prints pass/fail sanity result.
+
+## Deep Workflow Map (YAML -> Artifacts)
+
+Entry command:
+
+```bash
+python train_deep.py --config configs/train/digits_cnn.yaml
+```
+
+Reads:
+- `configs/train/digits_*.yaml`
+- `configs/data/digits_*.yaml`
+- `configs/models/digits_*.yaml`
+
+Writes under `runs/<run_name>/`:
+- `model.pt`
+- `metrics.json`
+- `params.json`
+- `predictions.csv`
+- `training_curve.csv`
+- `bundle_info.json`
+
+Also appends:
+- `runs/summary.csv`
+
+## LLM Learning Track
+
+This repo now includes an LLM explainer for classroom teaching:
+- `reports/llms_explained.md`
+
+How to position it in class:
+- Classical ML in this repo: `train.py` + sklearn pipeline + tabular data.
+- Deep learning in this repo: `train_deep.py` + CNN/RNN/LSTM/GRU on Digits.
+- LLM concepts: transformer architecture, tokenization, pretraining, fine-tuning, prompting, and RAG.
+
+Suggested teaching flow:
+1. Start with reproducibility concepts (`configs/` -> commands -> `runs/` artifacts).
+2. Show supervised ML and deep learning runs in this repo.
+3. Use `reports/llms_explained.md` to bridge from sequence models (RNN/LSTM/GRU) to transformers and modern LLM systems.
+
+### Gemini API Demo (Free Tier)
+
+Use Google's Gemini API for prompt engineering demonstrations. **Free tier available** at [ai.google.dev](https://ai.google.dev/).
+
+**Setup:**
+
+1. Get free API key at [ai.google.dev](https://ai.google.dev/)
+2. Set environment variable:
+   ```bash
+   export GEMINI_API_KEY="your-api-key-here"
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt  # includes google-generativeai
+   ```
+
+**Usage Examples:**
+
+Classification demo (predict Titanic survival):
+```bash
+python llm_demo.py --config configs/llm/gemini.yaml \
+                   --prompt-config configs/prompts/titanic_classification.yaml \
+                   --query "Female, Age 28, Ticket Class 1"
+```
+
+Model explanation (teach ML concepts):
+```bash
+python llm_demo.py --config configs/llm/gemini.yaml \
+                   --prompt-config configs/prompts/model_explanation.yaml \
+                   --query "random forest classifier"
+```
+
+Code review (teaching code best practices):
+```bash
+python llm_demo.py --config configs/llm/gemini.yaml \
+                   --prompt-config configs/prompts/code_review.yaml \
+                   --query "def train(X, y):\n    model = LogisticRegression()\n    return model.fit(X, y)"
+```
+
+**Artifacts saved to `runs/<run_name>/`:**
+- `response.txt` — Full LLM response
+- `metadata.json` — Latency, token counts, timestamps
+- `params.json` — Configuration parameters used
+- `bundle_info.json` — Run metadata
+- `runs/summary.csv` — Appended run summary
+
+**Teaching Value:**
+- Students see real LLM responses with measurable latency
+- Prompt engineering principles (system prompt, few-shot examples, temperature)
+- Token counting and generation parameters
+- Same artifact reproducibility pattern as traditional ML and deep learning workflows
 
 ## Workflow Diagram
 

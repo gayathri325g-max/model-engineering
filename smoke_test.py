@@ -12,14 +12,14 @@ from src.inference.predictor import load_model, predict_dataframe
 
 
 def main() -> None:
-    run_dir = Path("runs/run_titanic_decision_tree")
+    run_dir = Path("runs/run_001")
     model_path = run_dir / "model.joblib"
 
     # Auto-train on first run so smoke tests can run in fresh clones.
     if not model_path.exists():
         print("No trained model found. Running training first...")
         subprocess.run(
-            [sys.executable, "train.py", "--config", "configs/train/titanic_decision_tree.yaml"],
+            [sys.executable, "train.py", "--config", "configs/train/default.yaml"],
             check=True,
         )
 
@@ -29,11 +29,10 @@ def main() -> None:
 
     df = pd.read_csv(holdout_path)
     # Keep the check fast by scoring only a tiny sample.
-    X = df.drop(columns=["target"], errors="ignore").head(10)
+    X = df.drop(columns=["target"], errors="ignore").head(5)
 
     model = load_model(run_dir)
     pred_df = predict_dataframe(model, X)
-    print("pred_df: ",pred_df)
 
     assert not pred_df.empty, "Predictions are empty"
     assert "prediction" in pred_df.columns, "Missing prediction column"

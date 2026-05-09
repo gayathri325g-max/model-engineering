@@ -3,28 +3,9 @@ model_type: gradient_boosting
 # calibrate=false keeps the native Friedman-sigmoid outputs for comparison.
 calibrate: false
 params:
-#number of boosting iterations.Defaults to 100. we have set to 200 decision trees
   n_estimators: 200
-#predictions from each tree is scale down to 0.09 before being added to final prediction.   
-  learning_rate: 0.09
-#Depth of each tree. shallow - underfit. Deep - overfit. Defaults to None  
+  learning_rate: 0.05
   max_depth: 4
-#The number of samples required at leaf node.   
-  min_samples_leaf: 2
-#The number of samples reqired to split an internal node.
-  min_samples_split: 5  
-#The fraction of samples used by each decision tree. 
-#default value: 1 - each tree uses entire dataset. 
-#controls overfitting  
+  min_samples_leaf: 5
   subsample: 0.8
-#Fractiion of features to be randomly sampled. 
-#Anothr way  to control overfitting
-colsample_bytree: 0.8
   random_state: 42
-
-
-#The min_samples_leaf parameter checks before the node is generated, that is, if the possible split results in a child with fewer samples, the split will be avoided (since the minimum number of samples for the child to be a leaf has not been reached) and the node will be replaced by a leaf.  
-
-
-
-
