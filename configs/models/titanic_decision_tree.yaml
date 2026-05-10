@@ -3,6 +3,12 @@ model_type: decision_tree
 # wraps with CalibratedClassifierCV(isotonic) for better probability estimates.
 calibrate: true
 params:
-  max_depth: 5
-  min_samples_leaf: 10
+##limits complexity 
+  max_depth: 6
+## Avoids noisy decisions  
+  min_samples_leaf: 8  
+##ensures consistency.   
   random_state: 42
+##Limits number of featurs to be considered by each tree. 
+  max_features: 10  
+

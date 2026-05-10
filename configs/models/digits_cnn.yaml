@@ -1,5 +1,21 @@
 model_type: cnn2d
 params:
   channels_1: 16
+  #The second Conv2D layer has 32 filters.
   channels_2: 32
+  #regulairization to prevent overfitting. Randomly disabled 20% of nuerons
   dropout: 0.2
+
+
+  # The first Conv2D layer has 16 filters (kernels).
+  # The second Conv2D layer has 32 filters (kernels).
+ #Each filter learns a different feature from the input.
+
+##Examples:
+#one filter may detect edges
+#another detects curves
+#another detects textures
+#16 channels = 16 learned feature maps
+
+#16 → 32 → 64 → 128
+#more channels = better learning capacity;;but more memory + slower training

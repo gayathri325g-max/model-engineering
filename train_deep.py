@@ -53,6 +53,7 @@ def main() -> None:
 
     dataset = load_demo_dataset(data_cfg=data_cfg, seed=seed)
     model_type = model_cfg.get("model_type", "cnn2d")
+    print("model type: ",model_type)
     model_params = model_cfg.get("params", {})
 
     model, history, y_pred, y_prob = train_deep_model(
@@ -60,7 +61,7 @@ def main() -> None:
         model_type=model_type,
         model_params=model_params,
         train_params=train_cfg.get("training", {}),
-        seed=seed,
+        seed=seed
     )
 
     metrics = _to_metrics(dataset.y_test, y_pred, history)

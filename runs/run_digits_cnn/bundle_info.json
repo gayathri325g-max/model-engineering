@@ -9,6 +9,6 @@
     8
   ],
   "num_classes": 10,
-  "trained_at": "2026-04-25T14:34:29.045816+00:00",
-  "train_config": "configs/train/digits_cnn.yaml"
+  "trained_at": "2026-05-10T16:01:38.695033+00:00",
+  "train_config": ".\\configs\\train\\digits_cnn.yaml"
 }

@@ -1,0 +1,6 @@
+{
+  "train_config": "configs/train/digits_cnn2.yaml",
+  "data_config": "configs/data/digits_image.yaml",
+  "model_config": "configs/models/digits_cnn2.yaml",
+  "seed": 42
+}

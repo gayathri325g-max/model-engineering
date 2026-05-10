@@ -1,0 +1,8 @@
+model_type: cnn2d
+params:
+  channels_1: 32
+  #The second Conv2D layer has 32 filters.
+  channels_2: 64
+  #channels_3: 64
+  #regulairization to prevent overfitting. Randomly disabled 20% of nuerons
+  dropout: 0.2

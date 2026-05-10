@@ -1,0 +1,14 @@
+{
+  "model_type": "cnn2d",
+  "run_name": "run_digits_cnn2",
+  "model_file": "model2.pt",
+  "dataset_name": "digits",
+  "framing": "image",
+  "input_shape": [
+    8,
+    8
+  ],
+  "num_classes": 10,
+  "trained_at": "2026-05-09T08:41:53.394997+00:00",
+  "train_config": "configs/train/digits_cnn2.yaml"
+}

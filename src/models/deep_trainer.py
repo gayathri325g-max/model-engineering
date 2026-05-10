@@ -12,6 +12,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 from sklearn.datasets import load_digits
+from sklearn.datasets import load_iris
+from sklearn.datasets import fetch_olivetti_faces
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset
 
@@ -144,12 +146,30 @@ def load_demo_dataset(data_cfg: dict, seed: int) -> DatasetBundle:
     dataset_name = data_cfg.get("dataset_name", "digits")
     framing = data_cfg.get("framing", "image")
     test_size = float(data_cfg.get("test_size", 0.2))
-
+    print("dataset name: ",dataset_name)
     if dataset_name == "digits":
+        print("inside if block of: ",dataset_name)
         digits = load_digits()
         x_img = digits.images.astype(np.float32) / 16.0  # normalize to [0,1]
         y = digits.target.astype(np.int64)
-
+        if framing == "image":
+            x = x_img  # (N, 8, 8)
+            input_shape = (8, 8)
+        elif framing == "sequence":
+            # Sequential MNIST-style: each 8x8 image is a sequence of 8 timesteps
+            # with 8 features each.
+            x = x_img  # (N, seq_len=8, input_size=8)
+            input_shape = (8, 8)
+        else:
+            raise ValueError("framing must be 'image' or 'sequence'.")
+    elif dataset_name == "fetch_olivetti_faces":
+        print("dataset is: ",dataset_name)
+        faces = fetch_olivetti_faces()
+        x_img = faces.images.astype(np.float32) / 16.0  # normalize to [0,1]
+        y = faces.target.astype(np.int64)
+        print("shape is: ",x_img.shape)
+        x_img = x_img.reshape(-1, 1, 64, 64)
+        print("After reshape: ",x_img)
         if framing == "image":
             x = x_img  # (N, 8, 8)
             input_shape = (8, 8)
@@ -170,7 +190,7 @@ def load_demo_dataset(data_cfg: dict, seed: int) -> DatasetBundle:
         framing = "sequence"
     
     else:
-        raise ValueError(f"Unknown dataset_name: {dataset_name}. Supported: 'digits', 'timeseries'")
+        raise ValueError(f"Unknown dataset_name: {dataset_name}. Supported: 'digits','fetch_olivetti_faces', 'timeseries'")
 
     x_train, x_test, y_train, y_test = train_test_split(
         x,
@@ -215,11 +235,12 @@ def _make_loader(x: np.ndarray, y: np.ndarray, model_type: str, batch_size: int,
     x_t = torch.tensor(x, dtype=torch.float32)
     y_t = torch.tensor(y, dtype=torch.long)
 
-    if model_type == "cnn2d":
+    #if model_type == "cnn2d":
         # (N, H, W) -> (N, 1, H, W)
-        x_t = x_t.unsqueeze(1)
+    #    x_t = x_t.unsqueeze(1)
 
     dataset = TensorDataset(x_t, y_t)
+    print("dataset is: ",dataset)
     return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
 
